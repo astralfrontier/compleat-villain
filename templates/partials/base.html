@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" class="fullheight">
+<html lang="en" class="fullheight has-navbar-fixed-top">
 
 {# Override the "title" block to supply your own page title, e.g "Page Name | Site Name" #}
 
@@ -31,8 +31,10 @@
 
 <body class="fullheight">
     {% include "partials/navbar.html" %}
-    {% block content %}
-    {% endblock %}
+    <div class="container is-widescreen">
+        {% block content %}
+        {% endblock %}
+    </div>
     <script type="text/javascript" src="/jquery.min.js"></script>
     <script type="text/javascript" src="/elasticlunr.min.js"></script>
     <script type="text/javascript" src="/application.js"></script>
