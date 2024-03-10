@@ -1,0 +1,12 @@
+{# message(class=CSS class, title=title) #}
+{# The body of the block is shown as the message body #}
+<article class="message {% if class %}{{class}}{% endif %}">
+  {% if title %}
+  <div class="message-header">
+    <p>{{title}}</p>
+  </div>
+  {% endif %}
+  <div class="message-body">
+    {{body | markdown | safe}}
+  </div>
+</article>

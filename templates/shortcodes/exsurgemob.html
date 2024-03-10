@@ -1,0 +1,158 @@
+<p class="is-size-3 title">
+    {% if name %}<strong>{{name}}</strong>{% else %}<strong>Unnamed</strong>{% endif %} &#9679; 
+    {% if aspect %}{{aspect}}{% else %}No Aspect{% endif %} &#9679; 
+    {% if family %}{{family}}{% else %}No Family{% endif %} &#9679; 
+    {% if type %}{{type}}{% else %}Grunt{% endif %}
+</p>
+<p class="subtitle">
+    <i>{{description}}</i>
+</p>
+
+<div class="columns has-text-white has-background-grey">
+    {% set section_label = ["Basic", "Adv"] %}
+    {% for i in [0, 1] %}
+    <div class="column is-2">
+        {{section_label[i]}} (R{{rank[i]}})
+    </div>
+    <div class="column is-4">
+        <i>{{flavor[i]}}</i>
+    </div>
+    {% endfor %}
+</div>
+<div class="columns">
+    {% for i in [0, 1] %}
+    <div class="column is-6 has-text-centered">
+        <strong>SPD</strong>:  {{spd[i]}},
+        <strong>DASH</strong>: {{dash[i]}},
+        <strong>ATK</strong>:  {{atk[i]}},
+        <strong>MGK</strong>:  {{mgk[i]}},
+        <strong>PDEF</strong>: {{pdef[i]}},
+        <strong>MDEF</strong>: {{mdef[i]}},
+        <strong>RES</strong>:  {{res[i]}}
+    </div>
+    {% endfor %}
+</div>
+
+<div class="columns has-text-white has-background-grey has-text-centered">
+    <div class="column is-1">
+        Basic
+    </div>
+    <div class="column is-1">
+        Advanced
+    </div>
+    <div class="column is-3">
+        Action Name
+    </div>
+    <div class="column is-7">
+        Action Description
+    </div>
+</div>
+{% for action in actions %}
+<div class="columns has-text-centered">
+    <div class="column is-1">
+        {{action[0]}}
+    </div>
+    <div class="column is-1">
+        {{action[1]}}
+    </div>
+    <div class="column is-3">
+        {{action[2]}}
+    </div>
+    <div class="column is-7">
+        {{action[3] | markdown | safe}}
+    </div>
+</div>
+{% endfor %}
+
+<div class="columns has-text-white has-background-grey">
+    {% set section_label = ["BASIC", "ADV."] %}
+    {% for i in [0, 1] %}
+    <div class="column is-2">
+        {{section_label[i]}}
+    </div>
+    <div class="column is-2">PDEF: {{pdef[i]}}</div>
+    <div class="column is-2">MDEF: {{mdef[i]}}</div>
+    {% endfor %}
+</div>
+<div class="columns">
+    {% for i in [0, 1] %}
+    <div class="column is-2">
+        No Loss
+    </div>
+    <div class="column is-2">
+        0 - {{pdef[i] - 1}}
+    </div>
+    <div class="column is-2">
+        0 - {{mdef[i] - 1}}
+    </div>
+    {% endfor %}
+</div>
+{% for row in [1, 2, 3, 4, 5, 6, 7] %}
+{% set offset = (row - 1) * 10 %}
+<div class="columns">
+    {% for i in [0, 1] %}
+    <div class="column is-2">
+        {% if row > 2 %}⯀ x {{row}}{% elif row == 2 %}⯀⯀{% else %}⯀{% endif %}
+    </div>
+    <div class="column is-2">
+        {% if row == 7 %}{{pdef[i] + offset}}+{% else %}{{pdef[i] + offset}} - {{pdef[i] + offset + 9}}{% endif %}
+    </div>
+    <div class="column is-2">
+        {% if row == 7 %}{{mdef[i] + offset}}+{% else %}{{mdef[i] + offset}} - {{mdef[i] + offset + 9}}{% endif %}
+    </div>
+    {% endfor %}
+</div>
+{% endfor %}
+<div class="columns">
+    {% for i in [0, 1] %}
+    <div class="column is-6">
+        <strong>Counters per Turn</strong>: {{counters[i]}}
+    </div>
+    {% endfor %}
+</div>
+<div class="columns">
+    <div class="column is-12 has-text-centered">
+        <strong>Vulnerabilities</strong>:
+        {% set vuln_labels = ["FLM", "WAV", "FRS", "STN", "AER", "BLT", "BLM", "MTL", "NVR"] %}
+        {% for i in range(start=0, end=9) %}
+        {% set v = vuln[i] %}
+        {{vuln_labels[i]}} {% if v == 1 %}⯀{% elif v == -1 %}▢{% else %}&dash;{% endif %}{% if i < 8 %},{% endif %}
+        {% endfor %}
+    </div>
+</div>
+<div class="columns">
+    {% for i in [0, 1] %}
+    <div class="column is-6">
+        <strong>HP</strong>: {% for j in range(start=0, end=hp[i]) %}⯀{% endfor %} ({{hp[i]}})
+    </div>
+    {% endfor %}
+</div>
+
+{# The loot list for a mob #}
+{# Usage: exsurgemobloot(loot=loot) #}
+{# Loot is an array of loot. Each element of the array is another array: range and description for basic and advanced mobs #}
+{# All values are required #}
+<div class="columns has-text-white has-background-grey">
+    <div class="column is-6">
+        1d6 - Loot Table
+    </div>
+    <div class="column is-6">
+        1d6 - Loot Table
+    </div>
+</div>
+{% for row in loot %}
+<div class="columns">
+    <div class="column is-1">
+        {{row[0]}}
+    </div>
+    <div class="column is-5">
+        {{row[1]}}
+    </div>
+    <div class="column is-1">
+        {{row[2]}}
+    </div>
+    <div class="column is-5">
+        {{row[3]}}
+    </div>
+</div>
+{% endfor %}

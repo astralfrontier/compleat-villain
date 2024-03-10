@@ -1,0 +1,237 @@
+{% macro toc2(headers, level) %}
+<ul>
+    {% for header in headers %}
+    <li>
+        <a href="{{header.permalink | safe}}">{{header.title}}</a>
+        {% if header.children %}
+        {{ self::toc2(headers=header.children, level=header.level + 1) }}
+        {% endif %}    
+    </li>
+    {% endfor %}
+</ul>
+{% endmacro toc2 %}
+
+{# Show the table of contents at a given level #}
+{% macro toc(headers) %}
+{% if headers %}
+{{ self::toc2(headers=headers, level=1) }}
+{% endif %}
+{% endmacro toc %}
+
+{# Show an article without the card wrapper - the media object of the header, plus content #}
+{% macro article_unwrapped(page, force_full) %}
+{# h-entry, p-name, etc. are part of the microformats protocol - http://microformats.org/wiki/h-entry #}
+<div class="h-entry">
+    <div class="media">
+        <div class="media-center">
+            <img src="/brand/avatar-256x256.png" class="author-image" alt="{{config.site}}">
+        </div>
+        {% if force_full %}
+        <a id="article-top"></a>
+        {% endif %}    
+        <div class="media-content has-text-centered mt-6">
+            <p class="title article-title"><a href="{{page.permalink | safe}}" class="p-name">{{page.title}}</a></p>
+            <p class="subtitle is-6 article-subtitle">
+                <a class="p-author h-card" href="https://astralfrontier.org">@astralfrontier TODO</a>
+                {% if page.date %}
+                on <time class="dt-published" datetime="{{page.date}}">{{page.date | date(format="%b %e %Y")}}</time>
+                {% endif %}
+                {% if page.ancestors | length > 1 %}
+                {% set parent_section = get_section(path=page.ancestors | last, metadata_only=true) %}
+                in <a href="{{parent_section.permalink | safe}}">{{parent_section.title}}</a>
+                {% endif %}
+            </p>
+            {% if page.taxonomies %}
+            <div class="tags has-addons level-item">
+                {% for type in config.taxonomies %}
+                {% for tag in page.taxonomies[type.name] | default(value=[]) %}
+                {% set url = get_taxonomy_url(kind=type.name, name=tag) %}
+                <span class="tag is-rounded"><a class="p-category" href="{{url | safe}}">{{tag}}</a></span>
+                {% endfor %}
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    <div class="content article-body mt-5 e-content">
+        {% if not force_full and page.summary %}
+        {{page.summary | safe}}
+        <p>
+            <a href="{{page.permalink | safe}}">Read more &quot;{{page.title}}&quot; &raquo;</a>
+        </p>
+        {% elif page.toc and not page.extra.hide_toc %}
+        <div class="columns">
+            <div class="column is-one-quarter is-article-toc">
+                {{self::toc(headers=page.toc)}}
+                {% if page.extra.pullquote %}
+                <article class="message is-success  is-hidden-touch">
+                    <div class="message-body is-size-4">
+                      {{ page.extra.pullquote | markdown | safe }}
+                    </div>
+                  </article>
+                {% endif %}
+            </div>
+            <div class="column">
+                {{page.content | safe}}
+            </div>
+        </div>
+        {% else %}
+        {{page.content | safe}}
+        {% endif %}
+    </div>
+</div>
+{% if force_full %}
+<hr />
+<div class="columns is-vcentered">
+    <div class="column is-one-third has-text-centered">
+        {% if page.lower %}
+        <a href="{{page.lower.permalink | safe}}">&laquo; {{page.lower.title | default(value="Previous page")}}</a>
+        {% endif %}
+    </div>
+    <div class="column is-one-third has-text-centered">
+        <a href="#article-top">Back to top</a>
+    </div>
+    <div class="column is-one-third has-text-centered">
+        {% if page.higher %}
+        <a href="{{page.higher.permalink | safe}}">{{page.higher.title | default(value="Previous page")}} &raquo;</a>
+        {% endif %}
+    </div>
+</div>
+{% endif %}
+{% endmacro article_unwrapped %}
+
+{# Show an article, which coudld be abbreviated #}
+{% macro article(page) %}
+<div class="card article">
+    <div class="card-content">
+        {{self::article_unwrapped(page=page, force_full=false)}}
+    </div>
+</div>
+{% endmacro article %}
+
+{% macro quip(page) %}
+<section class="hero is-info is-bold is-small promo-block">
+    <div class="h-entry">
+        <div class="hero-body">
+            <div class="container has-text-centered">
+                <h1 class="title">
+                    <a href="{{page.permalink | safe}}" class="p-name">{{page.title}}</a>
+                </h1>
+                <div class="quip-content is-size-3 e-content">
+                    {{page.content | safe}}
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endmacro quip %}
+
+{# Show an array of articles #}
+{% macro articles(pages) %}
+<section class="articles">
+    {% for page in pages %}
+    {% if page.taxonomies.tags and page.taxonomies.tags is containing("Quip") %}
+    {{ self::quip(page=page) }}
+    {% else %}
+    {{ self::article(page=page) }}
+    {% endif %}
+    {% endfor %}
+</section>
+{% endmacro articles %}
+
+{# Show a banner image, based on page properties. #}
+{% macro banner(page) %}
+<section class="hero is-info is-medium is-bold">
+    <div class="hero-body">
+    <div class="container has-text-centered">
+        {% if page.extra.banner_quote %}
+        <h1 class="title">{{page.extra.banner_quote}}</h1>
+        {% endif %}
+    </div>
+    </div>
+</section>
+{% endmacro banner %}
+
+{# Show an abbreviated media object for an article #}
+{# CURRENTLY UNUSED #}
+{% macro media(page) %}
+<article class="media">
+    <div class="media-content">
+        <div class="content">
+            <nav class="level">
+                <div class="level-left">
+                    <div class="level-item">
+                        <a href="{{page.permalink | safe}}">
+                            <strong>{{page.title}}</strong>
+                            {% if page.date %}
+                            <small>{{page.date | date(format="%b %e %Y")}}</small>
+                            {% endif %}
+                        </a>
+                        {% if page.ancestors | length > 1 %}
+                        {% set parent_section = get_section(path=page.ancestors | last, metadata_only=true) %}
+                        <small>&nbsp;in <a href="{{parent_section.permalink | safe}}">{{parent_section.title}}</a></small>
+                        {% endif %}        
+                    </div>
+                </div>
+                {% if page.taxonomies %}
+                <div class="level-right">
+                    <div class="level-item">
+                    {% for type in config.taxonomies %}
+                    {% for tag in page.taxonomies[type.name] | default(value=[]) %}
+                    {% set url = get_taxonomy_url(kind=type.name, name=tag) %}
+                    <span class="tag is-rounded"><a class="p-category" href="{{url | safe}}">{{tag}}</a></span>
+                    {% endfor %}
+                    {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+            </nav>
+            <p>
+                {{page.description}}
+            </p>
+        </div>
+    </div>
+</article>
+{% endmacro media %}
+
+{# Show an array of pages as media objects #}
+{% macro medias(pages) %}
+<section class="articles">
+    {# The second assignment is because Tera interpreted "/2 | round" as "round down the integer 2". Thanks Tera. #}
+    {% set pagecount = pages | length / 2 %}
+    {% set pagecount = pagecount | round %}
+    <div class="box">
+        <div class="columns">
+            <div class="column is-half">
+            {% for page in pages | slice(end=pagecount) %}
+                {{ self::media(page=page) }}
+            {% endfor %}
+            </div>
+            <div class="column is-half">
+            {% for page in pages | slice(start=pagecount) %}
+                {{ self::media(page=page) }}
+            {% endfor %}
+            </div> 
+        </div>   
+    </div> 
+</section>
+{% endmacro medias %}
+
+{# Show the pagination controls for the current page #}
+{% macro pagination(paginator) %}
+{# Only show pagination controls if there's enough elements for it to matter #}
+{% if paginator.previous or paginator.next %}
+<nav class="pagination is-centered" role="navigation" aria-label="pagination">
+    {% if paginator.previous %}
+    <a class="pagination-previous" href="{{paginator.previous | safe}}">Previous</a>
+    {% else %}
+    <a class="pagination-previous" disabled>Previous</a>
+    {% endif %}
+    {% if paginator.next %}
+    <a class="pagination-next" href="{{paginator.next | safe}}">Next page</a>
+    {% else %}
+    <a class="pagination-next" disabled>Next page</a>
+    {% endif %}
+</nav>
+{% endif %}
+{% endmacro pagination %}

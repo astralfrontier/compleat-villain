@@ -1,0 +1,20 @@
+{% extends "partials/base.html" %}
+{% import "partials/macros.html" as macros %}
+
+{% block title %}
+<title>{{config.title}}</title>
+<meta name="description" content="{{section.extra.description | default(value=config.description)}}" />
+{% endblock %}
+
+{% block content %}
+{{ macros::banner(page=section)}}
+<div class="container">
+    {{ macros::articles(pages=section.pages | slice(end=10)) }}
+    {% if section.pages | length > 10 %}
+    <nav class="pagination is-centered" role="navigation" aria-label="pagination">
+        <a class="pagination-previous" disabled>Previous</a>
+        <a class="pagination-next" href="/blog/page/2">Next page</a>
+    </nav>
+    {% endif %}
+</div>
+{% endblock content %}
