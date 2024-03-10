@@ -1,5 +1,4 @@
 {% extends "partials/base.html" %}
-{% import "partials/macros.html" as macros %}
 
 {% block title %}
 <title>{{section.title}}</title>
@@ -40,13 +39,7 @@
 </div>
 </div>
 {% endif %}
-{{ macros::banner(page=section)}}
 <div class="container">
-    {% if paginator %}
-    {{ macros::articles(pages=paginator.pages) }}
-    {{ macros::pagination(paginator=paginator) }}
-    {% else %}
-    {{ macros::articles(pages=section.pages) }}
-    {% endif %}
+    <p>TODO content</p>
 </div>
 {% endblock content %}

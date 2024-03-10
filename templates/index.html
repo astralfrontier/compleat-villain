@@ -1,5 +1,4 @@
 {% extends "partials/base.html" %}
-{% import "partials/macros.html" as macros %}
 
 {% block title %}
 <title>{{config.title}}</title>
@@ -7,14 +6,7 @@
 {% endblock %}
 
 {% block content %}
-{{ macros::banner(page=section)}}
 <div class="container">
-    {{ macros::articles(pages=section.pages | slice(end=10)) }}
-    {% if section.pages | length > 10 %}
-    <nav class="pagination is-centered" role="navigation" aria-label="pagination">
-        <a class="pagination-previous" disabled>Previous</a>
-        <a class="pagination-next" href="/blog/page/2">Next page</a>
-    </nav>
-    {% endif %}
+    <p>TODO front page</p>
 </div>
 {% endblock content %}
